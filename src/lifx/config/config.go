@@ -2,35 +2,37 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
 
-var configuration Configuration
-
 type Configuration map[string]string
 
-func init() {
-	configuration = Get()
-	if configuration["selector"] == "" {
-		Set("selector", "all")
-	}
+var configuration = make(Configuration)
+
+func InitializeConfig() {
+	os.Mkdir(os.Getenv("HOME")+"/.lifx", 0700)
+	Set("selector", "all")
 }
 
-func Get() Configuration {
+func Get() (Configuration, error) {
 	config_file, err := ioutil.ReadFile(os.Getenv("HOME") + "/.lifx/conf.json")
+
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return nil, err
 	}
-	var configuration Configuration
+
 	json.Unmarshal(config_file, &configuration)
-	return configuration
+	return configuration, nil
 }
 
 func Set(k string, v string) Configuration {
 	configuration[k] = v
 
 	b, err := json.Marshal(configuration)
+
 	if err != nil {
 		panic(err)
 	}

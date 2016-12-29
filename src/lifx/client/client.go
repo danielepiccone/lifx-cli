@@ -38,9 +38,10 @@ type Lights []Light
 var configuration map[string]string
 
 func init() {
-	configuration = config.Get()
+	configuration, err := config.Get()
 
-	if configuration["token"] == "" {
+	if err != nil || configuration["token"] == "" {
+		config.InitializeConfig()
 		fmt.Println("Set your token in ~/.lifx/conf.json")
 		os.Exit(1)
 	}
